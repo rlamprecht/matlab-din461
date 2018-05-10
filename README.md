@@ -3,7 +3,7 @@ Applies the DIN 461 style to a 2D plot in MATLAB.
 
 
 # Example 1: Usage
-'''matlab
+```matlab
 t = linspace(0, 40, 100);
 u = 325*sin(2*pi*t/20);
 
@@ -20,8 +20,9 @@ plot(t, u, 'b');
 grid on;
 
 din461('$$t$$', '$$u$$', 'ms', 'V');
-'''
-![Example 1](https://raw.github.com/OlliK94/matlab-din461/screenshots/example1.png)
+```
+
+![Example 1](/screenshots/example1.png?raw=true)
 
 # Example 2: Degree unit
-![Example 2](https://raw.github.com/OlliK94/matlab-din461/screenshots/example2.png)
+![Example 2](/screenshots/example2.png?raw=true)

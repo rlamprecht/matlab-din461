@@ -63,7 +63,7 @@ elseif replaceNext2last(1)
 else
     xtickdist = ax.Position(3)/(length(get(ax, 'XTick'))-1);
     xpos = [ax.Position(1)+ax.Position(3)-xtickdist, ax.Position(2), xtickdist, 0];
-    annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'top');
+    xunitlabel = annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'top');
 end % end if
 
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
@@ -74,7 +74,7 @@ elseif replaceNext2last(2)
 else
     ytickdist = ax.Position(4)/(length(get(ax, 'YTick'))-1);
     ypos = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdist, 0, ytickdist];
-    annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+    yunitlabel = annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
 %% add arrows
@@ -84,7 +84,7 @@ xlabelpos(1) = xlabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
 xlabelpos(2) = xlabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
 xlabelpos(3) = xlabelobj.Extent(3)*ax.Position(3);
 xlabelpos(4) = xlabelobj.Extent(4)*ax.Position(4);
-annotation('arrow', 'Position', [xlabelpos(1)+xlabelpos(3)+0.02, xlabelpos(2)+xlabelpos(4)/2, 0.1, 0], 'HeadLength', 6, 'HeadWidth', 6);
+xarrow = annotation('arrow', 'Position', [xlabelpos(1)+xlabelpos(3)+0.02, xlabelpos(2)+xlabelpos(4)/2, 0.1, 0], 'HeadLength', 6, 'HeadWidth', 6);
 
 ylabelobj = get(ax, 'YLabel');
 set(ylabelobj, 'Units', 'normalized');
@@ -92,7 +92,7 @@ ylabelpos(1) = ylabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
 ylabelpos(2) = ylabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
 ylabelpos(3) = ylabelobj.Extent(3)*ax.Position(3);
 ylabelpos(4) = ylabelobj.Extent(4)*ax.Position(4);
-annotation('arrow', 'Position', [ylabelpos(1)+ylabelpos(3)/2, ylabelpos(2)+ylabelpos(4)+0.02, 0, 0.1], 'HeadLength', 6, 'HeadWidth', 6);
+yarrow = annotation('arrow', 'Position', [ylabelpos(1)+ylabelpos(3)/2, ylabelpos(2)+ylabelpos(4)+0.02, 0, 0.1], 'HeadLength', 6, 'HeadWidth', 6);
 
 %% add exponent label
 % this is necessary because setting the tick labels manualy removes the
@@ -101,14 +101,49 @@ if xexp ~= 0
     ax.XAxis.Exponent = xexp;
     xpos = [ax.Position(1)+ax.Position(3), ax.Position(2), 0, 0];
     xstr = ['$\times\,10^{' num2str(xexp) '}$'];
-    annotation('textbox', xpos, 'String', xstr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
+    xexplabel = annotation('textbox', xpos, 'String', xstr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
 end % end if
 
 if yexp ~= 0
     ax.YAxis.Exponent = yexp;
     ypos = [ax.Position(1), ax.Position(2)+ax.Position(4), 0, 0];
     ystr = ['$\times\,10^{' num2str(yexp) '}$'];
-    annotation('textbox', ypos, 'String', ystr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
+    yexplabel = annotation('textbox', ypos, 'String', ystr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
 end % end if
+
+%% add resize event listener
+%addlistener(ax.Parent, 'ResizeFcn', @onResize);
+ax.Parent.SizeChangedFcn = @onResize;
+    function onResize(varargin)
+        try
+            xtickdistance = ax.Position(3)/(length(get(ax, 'XTick'))-1);
+            xunitlabel.Position = [ax.Position(1)+ax.Position(3)-xtickdistance, ax.Position(2), xtickdistance, 0]; 
+        end
+        
+        try
+            ytickdistance = ax.Position(4)/(length(get(ax, 'YTick'))-1);
+            yunitlabel = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdistance, 0, ytickdistance];
+        end
+        
+        xlabelpos(1) = xlabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
+        xlabelpos(2) = xlabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
+        xlabelpos(3) = xlabelobj.Extent(3)*ax.Position(3);
+        xlabelpos(4) = xlabelobj.Extent(4)*ax.Position(4);
+        xarrow.Position = [xlabelpos(1)+xlabelpos(3)+0.02, xlabelpos(2)+xlabelpos(4)/2, 0.1, 0];
+        
+        ylabelpos(1) = ylabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
+        ylabelpos(2) = ylabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
+        ylabelpos(3) = ylabelobj.Extent(3)*ax.Position(3);
+        ylabelpos(4) = ylabelobj.Extent(4)*ax.Position(4);
+        yarrow.Position = [ylabelpos(1)+ylabelpos(3)/2, ylabelpos(2)+ylabelpos(4)+0.02, 0, 0.1];
+        
+        try
+            xexplabel.Position = [ax.Position(1)+ax.Position(3), ax.Position(2), 0, 0];
+        end % end try
+        
+        try
+            yexplabel.Position = [ax.Position(1), ax.Position(2)+ax.Position(4), 0, 0];
+        end % end try
+    end % end function
 
 end % end function

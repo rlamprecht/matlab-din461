@@ -41,7 +41,7 @@ if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
     xticklabel = get(ax, 'XTickLabel');
     for i = 1:length(xticklabel)
         xticklabel{i} = [xticklabel{i} xunit];
-    end %end for i
+    end % end for i
     set(ax, 'XTickLabel', xticklabel);
 else
     xtickdist = ax.Position(3)/(length(get(ax, 'XTick'))-1);
@@ -53,7 +53,7 @@ if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
     yticklabel = get(ax, 'YTickLabel');
     for i = 1:length(yticklabel)
         yticklabel{i} = [yticklabel{i} yunit];
-    end %end for i
+    end % end for i
     set(ax, 'YTickLabel', yticklabel);
 else
     ytickdist = ax.Position(4)/(length(get(ax, 'YTick'))-1);

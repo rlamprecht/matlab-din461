@@ -21,7 +21,7 @@ set(0,'defaultFigureColor','w');
 plot(t, u, 'b');
 grid on;
 
-din461('$t$', '$u$', 'ms', 'V');
+din461('$t$', '$u$', 'ms', 'V', [0 1]);
 ```
 
 ![Example 1](/screenshots/example1.png?raw=true)

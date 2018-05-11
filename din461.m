@@ -36,20 +36,16 @@ if nargin < 1
 end
 
 %% add quantity labels
-xlabel(xquantity);
-ylabel(yquantity, 'Rotation', 0, 'HorizontalAlignment', 'Right', 'VerticalAlignment', 'middle');
+xlabel(ax, xquantity);
+ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'Right', 'VerticalAlignment', 'middle');
 
 %% add unit labels
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
-    xticklabel = get(ax, 'XTickLabel');
-    for i = 1:length(xticklabel)
-        xticklabel{i} = [xticklabel{i} xunit];
-    end % end for i
-    set(ax, 'XTickLabel', xticklabel);
+    ax.XAxis.TickLabelFormat = ['%g' xunit];
 elseif replaceNext2last(1)
-    xticklabel = get(ax, 'XTickLabel');
-    xticklabel{end-1} = xunit;
-    set(ax, 'XTickLabel', xticklabel);
+    xtickdist = ax.Position(3)/(length(get(ax, 'XTick'))-1);
+    xpos = [ax.Position(1)+ax.Position(3)-xtickdist*1.5, ax.Position(2)/2, xtickdist, ax.Position(2)/2];
+    annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'off', 'BackgroundColor', 'w', 'LineStyle', 'none', 'HorizontalAlignment', 'center');
 else
     xtickdist = ax.Position(3)/(length(get(ax, 'XTick'))-1);
     xpos = [ax.Position(1)+ax.Position(3)-xtickdist, ax.Position(2), xtickdist, 0];
@@ -57,15 +53,11 @@ else
 end % end if
 
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
-    yticklabel = get(ax, 'YTickLabel');
-    for i = 1:length(yticklabel)
-        yticklabel{i} = [yticklabel{i} yunit];
-    end % end for i
-    set(ax, 'YTickLabel', yticklabel);
+    ax.YAxis.TickLabelFormat = ['%g' yunit];
 elseif replaceNext2last(2)
-    yticklabel = get(ax, 'YTickLabel');
-    yticklabel{end-1} = yunit;
-    set(ax, 'YTickLabel', yticklabel);
+    ytickdist = ax.Position(4)/(length(get(ax, 'YTick'))-1);
+    ypos = [0, ax.Position(2)+ax.Position(4)-ytickdist*1.5, ax.Position(1), ytickdist];
+    annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'off', 'BackgroundColor', 'w', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 else
     ytickdist = ax.Position(4)/(length(get(ax, 'YTick'))-1);
     ypos = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdist, 0, ytickdist];

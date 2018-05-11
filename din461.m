@@ -35,6 +35,21 @@ if nargin < 1
     xquantity = [];
 end
 
+%% replace decimal points with comma
+xtick = get(ax, 'XTick');
+xticklabel = get(ax, 'XTickLabel');
+i = find(xtick);
+xexp = round(log10(xtick(i(1))/str2double(xticklabel{i(1)})));
+xticklabel = strrep(xticklabel, '.', ',');
+set(ax, 'XTickLabel', xticklabel);
+
+ytick = get(ax, 'YTick');
+yticklabel = get(ax, 'YTickLabel');
+i = find(ytick);
+yexp = round(log10(ytick(i(1))/str2double(yticklabel{i(1)})));
+yticklabel = strrep(yticklabel, '.', ',');
+set(ax, 'YTickLabel', yticklabel);
+
 %% add quantity labels
 xlabel(ax, xquantity);
 ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'Right', 'VerticalAlignment', 'middle');
@@ -43,25 +58,23 @@ ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'Right', 'VerticalAl
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
     ax.XAxis.TickLabelFormat = ['%g' xunit];
 elseif replaceNext2last(1)
-    xtickdist = ax.Position(3)/(length(get(ax, 'XTick'))-1);
-    xpos = [ax.Position(1)+ax.Position(3)-xtickdist*1.5, ax.Position(2)/2, xtickdist, ax.Position(2)/2];
-    annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'off', 'BackgroundColor', 'w', 'LineStyle', 'none', 'HorizontalAlignment', 'center');
+    xticklabel{end-1} = xunit;
+    set(ax, 'XTickLabel', xticklabel);
 else
     xtickdist = ax.Position(3)/(length(get(ax, 'XTick'))-1);
     xpos = [ax.Position(1)+ax.Position(3)-xtickdist, ax.Position(2), xtickdist, 0];
-    annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'on', 'LineStyle', 'none', 'HorizontalAlignment', 'center');
+    annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'top');
 end % end if
 
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
     ax.YAxis.TickLabelFormat = ['%g' yunit];
 elseif replaceNext2last(2)
-    ytickdist = ax.Position(4)/(length(get(ax, 'YTick'))-1);
-    ypos = [0, ax.Position(2)+ax.Position(4)-ytickdist*1.5, ax.Position(1), ytickdist];
-    annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'off', 'BackgroundColor', 'w', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+    yticklabel{end-1} = yunit;
+    set(ax, 'YTickLabel', yticklabel);
 else
     ytickdist = ax.Position(4)/(length(get(ax, 'YTick'))-1);
     ypos = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdist, 0, ytickdist];
-    annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+    annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
 %% add arrows
@@ -80,5 +93,22 @@ ylabelpos(2) = ylabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
 ylabelpos(3) = ylabelobj.Extent(3)*ax.Position(3);
 ylabelpos(4) = ylabelobj.Extent(4)*ax.Position(4);
 annotation('arrow', 'Position', [ylabelpos(1)+ylabelpos(3)/2, ylabelpos(2)+ylabelpos(4)+0.02, 0, 0.1], 'HeadLength', 6, 'HeadWidth', 6);
+
+%% add exponent label
+% this is necessary because setting the tick labels manualy removes the
+% exponent label and there is no way to bring it back (as far as I know)
+if xexp ~= 0
+    ax.XAxis.Exponent = xexp;
+    xpos = [ax.Position(1)+ax.Position(3), ax.Position(2), 0, 0];
+    xstr = ['$\times\,10^{' num2str(xexp) '}$'];
+    annotation('textbox', xpos, 'String', xstr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
+end % end if
+
+if yexp ~= 0
+    ax.YAxis.Exponent = yexp;
+    ypos = [ax.Position(1), ax.Position(2)+ax.Position(4), 0, 0];
+    ystr = ['$\times\,10^{' num2str(yexp) '}$'];
+    annotation('textbox', ypos, 'String', ystr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
+end % end if
 
 end % end function

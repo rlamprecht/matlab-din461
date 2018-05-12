@@ -72,7 +72,10 @@ end % end if
 
 %% add unit labels
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
-    ax.XAxis.TickLabelFormat = ['%g' xunit];
+    for i = 1:length(xticklabel)
+        xticklabel{i} = [xticklabel{i} xunit];
+    end % end for i
+    set(ax, 'XTickLabel', xticklabel);
 elseif replacePenultimate(1)
     xticklabel{end-1} = xunit;
     set(ax, 'XTickLabel', xticklabel);
@@ -83,7 +86,10 @@ else
 end % end if
 
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
-    ax.YAxis.TickLabelFormat = ['%g' yunit];
+    for i = 1:length(yticklabel)
+        yticklabel{i} = [yticklabel{i} yunit];
+    end % end for i
+    set(ax, 'YTickLabel', yticklabel);
 elseif replacePenultimate(2)
     yticklabel{end-1} = yunit;
     set(ax, 'YTickLabel', yticklabel);

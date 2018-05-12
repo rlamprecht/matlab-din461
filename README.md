@@ -2,7 +2,8 @@
 Applies the DIN 461 style to a 2D plot in MATLAB.
 
 
-# Example 1: Usage
+# Usage
+* basic usage:
 ```matlab
 t = linspace(0, 40, 100);
 u = 325*sin(2*pi*t/20);
@@ -21,10 +22,19 @@ set(0,'defaultFigureColor','w');
 plot(t, u, 'b');
 grid on;
 
-din461('$t$', '$u$', 'ms', 'V', [0 1]);
+din461('$t$', '$u$', 'ms', 'V');
 ```
 
-![Example 1](/screenshots/example1.png?raw=true)
+* replace the penultimate number with the unit label instead of placing the unit label between the last and the penultimate number:
+```matlab
+din461('$t$', '$u$', 'ms', 'V', 'replacePenultimate', [1 1]);
+```
 
-# Example 2: Degree unit
+* vertical y label instead of horizontal y label:
+```matlab
+din461('$t$', '$u$', 'ms', 'V', 'verticalYLabel', 1);
+```
+
+# Examples
+![Example 1](/screenshots/example1.png?raw=true)
 ![Example 2](/screenshots/example2.png?raw=true)

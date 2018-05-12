@@ -1,39 +1,51 @@
-function [] = din461(xquantity, yquantity, xunit, yunit, replaceNext2last, ax)
-% DIN461  Apply DIN 461 style to diagram.
-%   DIN461(XQUANTITY, YQUANTITY, XUNIT, YUNIT) applies DIN 461 style to
+function [] = din461(varargin)
+% DIN461  DIN 461 style for 2D plots
+%   DIN461(xquantity, yquantity, xunit, yunit) applies DIN 461 style to
 %   current axes.
 %   
-%   DIN461(XQUANTITY, YQUANTITY, XUNIT, YUNIT, REPLACENEXT2LAST) specifies
-%   whether the unit labels replace the next to last number or are
-%   placed between the last and next to last number.
-%   * E. g. REPLACENEXT2LAST = [0 1] will place the x-unit label between 
-%     the last and next to last number and replace the next to last number 
-%     on the y-axis with the y-unit label. 
+%   DIN461(ax, ___) applies DIN 461 style to axes ax.
 %   
-%   DIN461(XQUANTITY, YQUANTITY, XUNIT, YUNIT, REPLACENEXT2LAST, AX) 
-%   applies DIN 461 style to axes AX.
+%   DIN461(___, 'replacePenultimate', replacePenultimate) specifies
+%   whether the unit labels replace the penultimate number or are
+%   placed between the last and penultimate number.
+%   * E. g. replacePenultimate = [0 1] will place the x-unit label between 
+%     the last and penultimate number and replace the penultimate number 
+%     on the y-axis with the y-unit label.
+%   * Default is [0 0].
+%   
+%   DIN461(___, 'verticalYLabel', verticalYLabel) specifies whether the
+%   ylabel is vertical or horizontal.
+%   * Default is 0.
 %   
 %   See also FIGURE, PLOT, SUBPLOT, XLABEL, YLABEL, ANNOTATION
+%
+%   Copyright (c) 2018 Oliver Kiethe
+%   This file is licensed under the MIT license.
 
-%% check inputs
-if nargin < 6
+%% input arguments
+p = inputParser;
+if isa(varargin{1}, 'matlab.graphics.axis.Axes')
+    addRequired(p, 'ax', @(x) isa(x, 'matlab.graphics.axis.Axes'));
+end % end if
+addRequired(p, 'xquantity', @ischar);
+addRequired(p, 'yquantity', @ischar);
+addRequired(p, 'xunit', @ischar);
+addRequired(p, 'yunit', @ischar);
+addParameter(p, 'replacePenultimate', [0 0], @(x) (islogical(x) || isnumeric(x)) && length(x) == 2);
+addParameter(p, 'verticalYLabel', 0, @(x) (islogical(x) || isnumeric(x)) && isscalar(x));
+
+parse(p, varargin{:});
+if isa(varargin{1}, 'matlab.graphics.axis.Axes')
+    ax = p.Results.ax;
+else
     ax = gca;
-end
-if nargin < 5
-    replaceNext2last = [0 0];
-end
-if nargin < 4
-    yunit = [];
-end
-if nargin < 3
-    xunit = [];
-end
-if nargin < 2
-    yquantity = [];
-end
-if nargin < 1
-    xquantity = [];
-end
+end % end if
+xquantity = p.Results.xquantity;
+yquantity = p.Results.yquantity;
+xunit = p.Results.xunit;
+yunit = p.Results.yunit;
+replacePenultimate = p.Results.replacePenultimate;
+verticalYLabel = p.Results.verticalYLabel;
 
 %% replace decimal points with comma
 xtick = get(ax, 'XTick');
@@ -52,12 +64,16 @@ set(ax, 'YTickLabel', yticklabel);
 
 %% add quantity labels
 xlabel(ax, xquantity);
-ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'Right', 'VerticalAlignment', 'middle');
+if verticalYLabel
+    ylabel(ax, yquantity, 'Rotation', 90, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
+else
+    ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+end % end if
 
 %% add unit labels
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
     ax.XAxis.TickLabelFormat = ['%g' xunit];
-elseif replaceNext2last(1)
+elseif replacePenultimate(1)
     xticklabel{end-1} = xunit;
     set(ax, 'XTickLabel', xticklabel);
 else
@@ -68,7 +84,7 @@ end % end if
 
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
     ax.YAxis.TickLabelFormat = ['%g' yunit];
-elseif replaceNext2last(2)
+elseif replacePenultimate(2)
     yticklabel{end-1} = yunit;
     set(ax, 'YTickLabel', yticklabel);
 else

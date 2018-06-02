@@ -48,19 +48,25 @@ replacePenultimate = p.Results.replacePenultimate;
 verticalYLabel = p.Results.verticalYLabel;
 
 %% replace decimal points with comma
-xtick = get(ax, 'XTick');
-xticklabel = get(ax, 'XTickLabel');
-i = find(xtick);
-xexp = round(log10(xtick(i(1))/str2double(xticklabel{i(1)})));
-xticklabel = strrep(xticklabel, '.', ',');
-set(ax, 'XTickLabel', xticklabel);
+xscale = get(ax, 'XScale');
+if strcmp(xscale, 'linear')
+    xtick = get(ax, 'XTick');
+    xticklabel = get(ax, 'XTickLabel');
+    i = find(xtick);
+    xexp = round(log10(xtick(i(1))/str2double(xticklabel{i(1)})));
+    xticklabel = strrep(xticklabel, '.', ',');
+    set(ax, 'XTickLabel', xticklabel);
+end % end if
 
-ytick = get(ax, 'YTick');
-yticklabel = get(ax, 'YTickLabel');
-i = find(ytick);
-yexp = round(log10(ytick(i(1))/str2double(yticklabel{i(1)})));
-yticklabel = strrep(yticklabel, '.', ',');
-set(ax, 'YTickLabel', yticklabel);
+yscale = get(ax, 'YScale');
+if strcmp(yscale, 'linear');
+    ytick = get(ax, 'YTick');
+    yticklabel = get(ax, 'YTickLabel');
+    i = find(ytick);
+    yexp = round(log10(ytick(i(1))/str2double(yticklabel{i(1)})));
+    yticklabel = strrep(yticklabel, '.', ',');
+    set(ax, 'YTickLabel', yticklabel);
+end % end if
 
 %% add quantity labels
 xlabel(ax, xquantity);
@@ -119,14 +125,14 @@ yarrow = annotation('arrow', 'Position', [ylabelpos(1)+ylabelpos(3)/2, ylabelpos
 %% add exponent label
 % this is necessary because setting the tick labels manualy removes the
 % exponent label and there is no way to bring it back (as far as I know)
-if xexp ~= 0
+if strcmp(xscale, 'linear') && xexp ~= 0
     ax.XAxis.Exponent = xexp;
     xpos = [ax.Position(1)+ax.Position(3), ax.Position(2), 0, 0];
     xstr = ['$\times\,10^{' num2str(xexp) '}$'];
     xexplabel = annotation('textbox', xpos, 'String', xstr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'middle');
 end % end if
 
-if yexp ~= 0
+if strcmp(yscale, 'linear') && yexp ~= 0
     ax.YAxis.Exponent = yexp;
     ypos = [ax.Position(1), ax.Position(2)+ax.Position(4), 0, 0];
     ystr = ['$\times\,10^{' num2str(yexp) '}$'];

@@ -17,12 +17,13 @@ function [] = din461(varargin)
 %   ylabel is vertical or horizontal.
 %   * Default is 0.
 %   
-%   See also FIGURE, PLOT, SUBPLOT, XLABEL, YLABEL, ANNOTATION
+%   See also FIGURE, PLOT, SUBAXES, XLABEL, YLABEL, ANNOTATION,
+%   SET_DEFAULT_PLOT_PROPERTIES
 %
 %   Copyright (c) 2018 Oliver Kiethe
 %   This file is licensed under the MIT license.
 
-%% input arguments
+%% Input arguments
 p = inputParser;
 if isa(varargin{1}, 'matlab.graphics.axis.Axes')
     addRequired(p, 'ax', @(x) isa(x, 'matlab.graphics.axis.Axes'));
@@ -47,7 +48,7 @@ yunit = p.Results.yunit;
 replacePenultimate = p.Results.replacePenultimate;
 verticalYLabel = p.Results.verticalYLabel;
 
-%% replace decimal points with comma
+%% Replace decimal points with comma
 xscale = get(ax, 'XScale');
 if strcmp(xscale, 'linear')
     xtick = get(ax, 'XTick');
@@ -68,7 +69,7 @@ if strcmp(yscale, 'linear');
     set(ax, 'YTickLabel', yticklabel);
 end % end if
 
-%% add quantity labels
+%% Add quantity labels
 xlabel(ax, xquantity);
 if verticalYLabel
     ylabel(ax, yquantity, 'Rotation', 90, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
@@ -76,7 +77,7 @@ else
     ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
-%% add unit labels
+%% Add unit labels
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
     for i = 1:length(xticklabel)
         xticklabel{i} = [xticklabel{i} xunit];
@@ -105,14 +106,18 @@ else
     yunitlabel = annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
-%% add arrows
+%% Add arrows
 xlabelobj = get(ax, 'XLabel');
 set(xlabelobj, 'Units', 'normalized');
 xlabelpos(1) = xlabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
 xlabelpos(2) = xlabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
 xlabelpos(3) = xlabelobj.Extent(3)*ax.Position(3);
 xlabelpos(4) = xlabelobj.Extent(4)*ax.Position(4);
-xarrow = annotation('arrow', 'Position', [xlabelpos(1)+xlabelpos(3)+0.02, xlabelpos(2)+xlabelpos(4)/2, 0.1, 0], 'HeadLength', 6, 'HeadWidth', 6);
+xarrowpos(1) = xlabelpos(1) + xlabelpos(3) + 0.02*ax.OuterPosition(3);
+xarrowpos(2) = xlabelpos(2)+xlabelpos(4)/2;
+xarrowpos(3) = 0.1*ax.OuterPosition(3);
+xarrowpos(4) = 0;
+xarrow = annotation('arrow', 'Position', xarrowpos, 'HeadLength', 6, 'HeadWidth', 6);
 
 ylabelobj = get(ax, 'YLabel');
 set(ylabelobj, 'Units', 'normalized');
@@ -120,9 +125,13 @@ ylabelpos(1) = ylabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
 ylabelpos(2) = ylabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
 ylabelpos(3) = ylabelobj.Extent(3)*ax.Position(3);
 ylabelpos(4) = ylabelobj.Extent(4)*ax.Position(4);
-yarrow = annotation('arrow', 'Position', [ylabelpos(1)+ylabelpos(3)/2, ylabelpos(2)+ylabelpos(4)+0.02, 0, 0.1], 'HeadLength', 6, 'HeadWidth', 6);
+yarrowpos(1) = ylabelpos(1) + ylabelpos(3)/2;
+yarrowpos(2) = ylabelpos(2) + ylabelpos(4) + 0.02*ax.OuterPosition(4);
+yarrowpos(3) = 0;
+yarrowpos(4) = 0.1*ax.OuterPosition(4);
+yarrow = annotation('arrow', 'Position', yarrowpos, 'HeadLength', 6, 'HeadWidth', 6);
 
-%% add exponent label
+%% Add exponent label
 % this is necessary because setting the tick labels manualy removes the
 % exponent label and there is no way to bring it back (as far as I know)
 if strcmp(xscale, 'linear') && xexp ~= 0
@@ -139,8 +148,7 @@ if strcmp(yscale, 'linear') && yexp ~= 0
     yexplabel = annotation('textbox', ypos, 'String', ystr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
 end % end if
 
-%% add resize event listener
-%addlistener(ax.Parent, 'ResizeFcn', @onResize);
+%% Add resize event listener
 ax.Parent.SizeChangedFcn = @onResize;
     function onResize(varargin)
         try
@@ -157,13 +165,21 @@ ax.Parent.SizeChangedFcn = @onResize;
         xlabelpos(2) = xlabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
         xlabelpos(3) = xlabelobj.Extent(3)*ax.Position(3);
         xlabelpos(4) = xlabelobj.Extent(4)*ax.Position(4);
-        xarrow.Position = [xlabelpos(1)+xlabelpos(3)+0.02, xlabelpos(2)+xlabelpos(4)/2, 0.1, 0];
+        xarrowpos(1) = xlabelpos(1) + xlabelpos(3) + 0.02*ax.OuterPosition(3);
+        xarrowpos(2) = xlabelpos(2)+xlabelpos(4)/2;
+        xarrowpos(3) = 0.1*ax.OuterPosition(3);
+        xarrowpos(4) = 0;
+        xarrow.Position = xarrowpos;
         
         ylabelpos(1) = ylabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
         ylabelpos(2) = ylabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
         ylabelpos(3) = ylabelobj.Extent(3)*ax.Position(3);
         ylabelpos(4) = ylabelobj.Extent(4)*ax.Position(4);
-        yarrow.Position = [ylabelpos(1)+ylabelpos(3)/2, ylabelpos(2)+ylabelpos(4)+0.02, 0, 0.1];
+        yarrowpos(1) = ylabelpos(1) + ylabelpos(3)/2;
+        yarrowpos(2) = ylabelpos(2) + ylabelpos(4) + 0.02*ax.OuterPosition(4);
+        yarrowpos(3) = 0;
+        yarrowpos(4) = 0.1*ax.OuterPosition(4);
+        yarrow.Position = yarrowpos;
         
         try
             xexplabel.Position = [ax.Position(1)+ax.Position(3), ax.Position(2), 0, 0];

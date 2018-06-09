@@ -31,7 +31,10 @@ function set_default_plot_properties(varargin)
 %   the default color order.
 %   * Default is 'brgk' (blue-red-green-black).
 %
-% See also FIGURE, PLOT, XLABEL, YLABEL, LEGEND, ANNOTATION
+%   See also FIGURE, PLOT, XLABEL, YLABEL, LEGEND, ANNOTATION
+%
+%   Copyright (c) 2018 Oliver Kiethe
+%   This file is licensed under the MIT license.
 
 %% Input arguments
 p = inputParser;

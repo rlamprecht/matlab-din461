@@ -130,6 +130,7 @@ set(0, 'defaultAxesBox', 'on');
 set(0, 'defaultAxesFontsize', fontsize);
 set(0, 'defaultAxesFontname', fontname);
 set(0, 'defaultAxesFontangle', 'normal');
+set(0, 'defaultAxesTickLabelInterpreter', interpreter);
 
 %% Legend
 set(0, 'defaultLegendInterpreter', interpreter);

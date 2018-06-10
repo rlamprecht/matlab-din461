@@ -79,9 +79,15 @@ end % end if
 
 %% Add unit labels
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
-    for i = 1:length(xticklabel)
-        xticklabel{i} = [xticklabel{i} xunit];
-    end % end for i
+    if strcmp(xunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
+        for i = 1:length(xticklabel)
+            xticklabel{i} = ['$$' xticklabel{i} '^{\circ}$$'];
+        end % end for i
+    else
+        for i = 1:length(xticklabel)
+            xticklabel{i} = [xticklabel{i} xunit];
+        end % end for i
+    end % end if
     set(ax, 'XTickLabel', xticklabel);
 elseif replacePenultimate(1)
     xticklabel{end-1} = xunit;
@@ -93,9 +99,15 @@ else
 end % end if
 
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
-    for i = 1:length(yticklabel)
-        yticklabel{i} = [yticklabel{i} yunit];
-    end % end for i
+    if strcmp(yunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
+        for i = 1:length(yticklabel)
+            yticklabel{i} = ['$$' yticklabel{i} '^{\circ}$$'];
+        end % end for i
+    else
+        for i = 1:length(yticklabel)
+            yticklabel{i} = [yticklabel{i} yunit];
+        end % end for i
+    end % end if
     set(ax, 'YTickLabel', yticklabel);
 elseif replacePenultimate(2)
     yticklabel{end-1} = yunit;

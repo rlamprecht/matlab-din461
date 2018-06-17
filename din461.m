@@ -161,8 +161,13 @@ if strcmp(yscale, 'linear') && yexp ~= 0
 end % end if
 
 %% Add resize event listener
+super = ax.Parent.SizeChangedFcn;
 ax.Parent.SizeChangedFcn = @onResize;
-    function onResize(varargin)
+    function onResize(hObject, event)
+        if(~isempty(super))
+            super(hObject, event);
+        end % end if
+        
         try
             xtickdistance = ax.Position(3)/(length(get(ax, 'XTick'))-1);
             xunitlabel.Position = [ax.Position(1)+ax.Position(3)-xtickdistance, ax.Position(2), xtickdistance, 0]; 

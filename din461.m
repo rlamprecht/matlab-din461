@@ -81,7 +81,7 @@ end % end if
 if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
     if strcmp(xunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
         for i = 1:length(xticklabel)
-            xticklabel{i} = ['$$' xticklabel{i} '^{\circ}$$'];
+            xticklabel{i} = strrep(['$$' xticklabel{i} '^{\circ}$$'], ',', '{,}');
         end % end for i
     else
         for i = 1:length(xticklabel)
@@ -101,7 +101,7 @@ end % end if
 if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
     if strcmp(yunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
         for i = 1:length(yticklabel)
-            yticklabel{i} = ['$$' yticklabel{i} '^{\circ}$$'];
+            yticklabel{i} = strrep(['$$' yticklabel{i} '^{\circ}$$'], ',', '{,}');
         end % end for i
     else
         for i = 1:length(yticklabel)

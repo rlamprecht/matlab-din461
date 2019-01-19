@@ -48,6 +48,14 @@ yunit = p.Results.yunit;
 replacePenultimate = p.Results.replacePenultimate;
 verticalYLabel = p.Results.verticalYLabel;
 
+%% Add quantity labels
+xlabel(ax, xquantity);
+if verticalYLabel
+    ylabel(ax, yquantity, 'Rotation', 90, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
+else
+    ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+end % end if
+
 %% Replace decimal points with comma
 xscale = get(ax, 'XScale');
 if strcmp(xscale, 'linear')
@@ -67,14 +75,6 @@ if strcmp(yscale, 'linear');
     yexp = round(log10(ytick(i(1))/str2double(yticklabel{i(1)})));
     yticklabel = strrep(yticklabel, '.', ',');
     set(ax, 'YTickLabel', yticklabel);
-end % end if
-
-%% Add quantity labels
-xlabel(ax, xquantity);
-if verticalYLabel
-    ylabel(ax, yquantity, 'Rotation', 90, 'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom');
-else
-    ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
 %% Add unit labels

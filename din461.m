@@ -56,32 +56,39 @@ else
     ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
-%% Replace decimal points with comma
+%% Get exponent
+xtick = get(ax, 'XTick');
 xscale = get(ax, 'XScale');
+xticklabel = get(ax, 'XTickLabel');
 if strcmp(xscale, 'linear')
-    xtick = get(ax, 'XTick');
-    xticklabel = get(ax, 'XTickLabel');
-    i = find(xtick);
-    xexp = round(log10(xtick(i(1))/str2double(xticklabel{i(1)})));
-    xticklabel = strrep(xticklabel, '.', ',');
-    set(ax, 'XTickLabel', xticklabel);
+    ind = find(xtick);
+    xexp = round(log10(xtick(ind(1))/str2double(xticklabel{ind(1)})));
+else
+    xexp = 0;
 end % end if
 
+ytick = get(ax, 'YTick');
 yscale = get(ax, 'YScale');
-if strcmp(yscale, 'linear');
-    ytick = get(ax, 'YTick');
-    yticklabel = get(ax, 'YTickLabel');
-    i = find(ytick);
-    yexp = round(log10(ytick(i(1))/str2double(yticklabel{i(1)})));
-    yticklabel = strrep(yticklabel, '.', ',');
-    set(ax, 'YTickLabel', yticklabel);
+yticklabel = get(ax, 'YTickLabel');
+if strcmp(yscale, 'linear')
+    ind = find(ytick);
+    yexp = round(log10(ytick(ind(1))/str2double(yticklabel{ind(1)})));
+else
+    yexp = 0;
 end % end if
+
+%% Replace decimal points with comma
+xticklabel = strrep(xticklabel, '.', ',');
+set(ax, 'XTickLabel', xticklabel);
+
+yticklabel = strrep(yticklabel, '.', ',');
+set(ax, 'YTickLabel', yticklabel);
 
 %% Add unit labels
-if strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')
+if (strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')) && strcmp(xscale, 'linear')
     if strcmp(xunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
         for i = 1:length(xticklabel)
-            xticklabel{i} = strrep(['$$' xticklabel{i} '^{\circ}$$'], ',', '{,}');
+            xticklabel{i} = strrep(['$' xticklabel{i} '^{\circ}$'], ',', '{,}');
         end % end for i
     else
         for i = 1:length(xticklabel)
@@ -98,10 +105,10 @@ else
     xunitlabel = annotation('textbox', xpos, 'String', xunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'center', 'VerticalAlignment', 'top');
 end % end if
 
-if strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')
+if (strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')) && strcmp(yscale, 'linear')
     if strcmp(yunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
         for i = 1:length(yticklabel)
-            yticklabel{i} = strrep(['$$' yticklabel{i} '^{\circ}$$'], ',', '{,}');
+            yticklabel{i} = strrep(['$' yticklabel{i} '^{\circ}$'], ',', '{,}');
         end % end for i
     else
         for i = 1:length(yticklabel)
@@ -160,24 +167,81 @@ if strcmp(yscale, 'linear') && yexp ~= 0
     yexplabel = annotation('textbox', ypos, 'String', ystr, 'Interpreter', 'latex', 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom');
 end % end if
 
-%% Add resize event listener
-super = ax.Parent.SizeChangedFcn;
-ax.Parent.SizeChangedFcn = @onResize;
+%% Set resize callback
+super = get(ax.Parent, 'SizeChangedFcn');
+set(ax.Parent, 'SizeChangedFcn', @onResize);
     function onResize(hObject, event)
         if(~isempty(super))
             super(hObject, event);
         end % end if
         
-        try
+        % update tick labels
+        xtick = get(ax, 'XTick');
+        xticklabel = cell(length(xtick), 1);
+        for j = 1:length(xtick)
+            if strcmp(xscale, 'linear')
+                xticklabel{j} = strrep(num2str(xtick(j)/10^xexp), '.', ',');
+            else
+                xticklabel{j} = ['10^{' num2str(log10(xtick(j))) '}'];
+                if strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
+                    xticklabel{j} = ['$' xticklabel{j} '$'];
+                end % end if
+            end % end if
+        end % end for j
+        if (strcmp(xunit, '°') || strcmp(xunit, '''') || strcmp(xunit, '''''')) && strcmp(xscale, 'linear')
+            if strcmp(xunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
+                for j = 1:length(xticklabel)
+                    xticklabel{j} = strrep(['$' xticklabel{j} '^{\circ}$'], ',', '{,}');
+                end % end for j
+            else
+                for j = 1:length(xticklabel)
+                    xticklabel{j} = [xticklabel{j} xunit];
+                end % end for j
+            end % end if
+        elseif replacePenultimate(1)
+            xticklabel{end-1} = xunit;
+        end % end if
+        set(ax, 'XTickLabel', xticklabel);
+        
+        ytick = get(ax, 'YTick');
+        yticklabel = cell(length(ytick), 1);
+        for j = 1:length(ytick)
+            if strcmp(yscale, 'linear')
+                yticklabel{j} = strrep(num2str(ytick(j)/10^yexp), '.', ',');
+            else
+                yticklabel{j} = ['10^{' num2str(log10(ytick(j))) '}'];
+                if strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
+                    yticklabel{j} = ['$' yticklabel{j} '$'];
+                end % end if
+            end % end if
+        end % end for j
+        if (strcmp(yunit, '°') || strcmp(yunit, '''') || strcmp(yunit, '''''')) && strcmp(yscale, 'linear')
+            if strcmp(yunit, '°') && strcmp(get(ax, 'TickLabelInterpreter'), 'latex')
+                for j = 1:length(yticklabel)
+                    yticklabel{j} = strrep(['$' yticklabel{j} '^{\circ}$'], ',', '{,}');
+                end % end for j
+            else
+                for j = 1:length(yticklabel)
+                    yticklabel{j} = [yticklabel{j} yunit];
+                end % end for j
+            end % end if
+        elseif replacePenultimate(2)
+            yticklabel{end-1} = yunit;
+        end % end if
+        set(ax, 'YTickLabel', yticklabel);
+        
+        % update unit label positions
+        if exist('xunitlabel', 'var')
             xtickdistance = ax.Position(3)/(length(get(ax, 'XTick'))-1);
             xunitlabel.Position = [ax.Position(1)+ax.Position(3)-xtickdistance, ax.Position(2), xtickdistance, 0]; 
-        end
+        end % end if
         
-        try
+        if exist('yunitlabel', 'var')
             ytickdistance = ax.Position(4)/(length(get(ax, 'YTick'))-1);
-            yunitlabel = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdistance, 0, ytickdistance];
-        end
+            yunitlabel.Position = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdistance, 0, ytickdistance];
+        end % end if
         
+        % update quantity label and arrow positions
         xlabelpos(1) = xlabelobj.Extent(1)*ax.Position(3)+ax.Position(1);
         xlabelpos(2) = xlabelobj.Extent(2)*ax.Position(4)+ax.Position(2);
         xlabelpos(3) = xlabelobj.Extent(3)*ax.Position(3);
@@ -198,13 +262,14 @@ ax.Parent.SizeChangedFcn = @onResize;
         yarrowpos(4) = 0.1*ax.OuterPosition(4);
         yarrow.Position = yarrowpos;
         
-        try
+        % update exponent label positions
+        if exist('xexplabel', 'var')
             xexplabel.Position = [ax.Position(1)+ax.Position(3), ax.Position(2), 0, 0];
-        end % end try
+        end % end if
         
-        try
+        if exist('yexplabel', 'var')
             yexplabel.Position = [ax.Position(1), ax.Position(2)+ax.Position(4), 0, 0];
-        end % end try
-    end % end function
+        end % end if
+    end % end function onResize
 
-end % end function
+end % end function din461

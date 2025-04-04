@@ -56,6 +56,9 @@ else
     ylabel(ax, yquantity, 'Rotation', 0, 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
 end % end if
 
+if strcmp(ax.YAxisLocation, 'right')
+    ax.YLabel.Position(3) = ax.YLabel.Position(3) + .1;
+end 
 %% Get exponent
 xtick = get(ax, 'XTick');
 xscale = get(ax, 'XScale');
@@ -157,8 +160,16 @@ else
             ytickend = log10(yl(1)/ytick(end))/log10(yl(2)/yl(1))*ax.Position(4);
         end % end if
     end % end if
-    ypos = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdistance-ytickend, 0, ytickdistance];
-    yunitlabel = annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', 'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle');
+    if strcmp(ax.YAxisLocation, 'right')
+        ypos = [ax.Position(3)+.2, ax.Position(2)+ax.Position(4)-ytickdistance-ytickend, 0, ytickdistance];
+            yunitlabel = annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', ...
+        'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle', 'Color',  ax.YColor);
+    else 
+        ypos = [ax.Position(1), ax.Position(2)+ax.Position(4)-ytickdistance-ytickend, 0, ytickdistance];
+            yunitlabel = annotation('textbox', ypos, 'String', yunit, 'FitBoxToText', 'on', 'BackgroundColor', 'none', ...
+        'LineStyle', 'none', 'HorizontalAlignment', 'right', 'VerticalAlignment', 'middle', 'Color',  ax.YColor);
+    end 
+ 
 end % end if
 
 %% Add arrows
@@ -184,7 +195,7 @@ yarrowpos(1) = ylabelpos(1) + ylabelpos(3)/2;
 yarrowpos(2) = ylabelpos(2) + ylabelpos(4) + 0.02*ax.OuterPosition(4);
 yarrowpos(3) = 0;
 yarrowpos(4) = 0.1*ax.OuterPosition(4);
-yarrow = annotation('arrow', 'Position', yarrowpos, 'HeadLength', 6, 'HeadWidth', 6);
+yarrow = annotation('arrow', 'Position', yarrowpos, 'HeadLength', 6, 'HeadWidth', 6, 'Color',  ax.YColor);
 
 %% Add exponent label
 % this is necessary because setting the tick labels manualy removes the
